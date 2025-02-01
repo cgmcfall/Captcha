@@ -57,7 +57,7 @@ if __name__ == "__main__":
 '''
 
 # Write Flask app to file
-with open("/var/www/hcaptcha/app.py", "w") as f:
+with open("/var/www/hcaptcha/build.py", "w") as f:
     f.write(flask_code)
 
 # Install required packages
