@@ -108,4 +108,4 @@ subprocess.run("sudo systemctl daemon-reload", shell=True, check=True)
 subprocess.run("sudo systemctl enable hcaptcha", shell=True, check=True)
 subprocess.run("sudo systemctl start hcaptcha", shell=True, check=True)
 
-print("\n✅ Setup Complete! Visit http://{domain_name} to test your hCaptcha-protected URL.")
+print("Setup Complete! Visit http://{domain_name} to test your hCaptcha-protected URL.")
