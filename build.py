@@ -1,6 +1,9 @@
 import os
 import subprocess
 
+# Ensure the directory exists before writing files
+os.makedirs("/var/www/hcaptcha", exist_ok=True)
+
 # Ask for user input
 site_key = input("Enter your hCaptcha Site Key: ")
 secret_key = input("Enter your hCaptcha Secret Key: ")
@@ -57,11 +60,12 @@ if __name__ == "__main__":
 '''
 
 # Write Flask app to file
-with open("/var/www/hcaptcha/build.py", "w") as f:
+os.makedirs("/var/www/hcaptcha", exist_ok=True)
+with open("/var/www/hcaptcha/app.py", "w") as f:
     f.write(flask_code)
 
 # Install required packages
-subprocess.run("sudo apt update && sudo apt install -y nginx python3 python3-pip", shell=True, check=True)
+subprocess.run("sudo apt update && sudo apt install -y nginx python3 python3-pip certbot python3-certbot-nginx", shell=True, check=True)
 subprocess.run("pip3 install flask requests gunicorn", shell=True, check=True)
 
 # Nginx configuration
@@ -85,7 +89,7 @@ with open("/etc/nginx/sites-available/hcaptcha", "w") as f:
 subprocess.run("sudo ln -s /etc/nginx/sites-available/hcaptcha /etc/nginx/sites-enabled/", shell=True, check=True)
 subprocess.run("sudo nginx -t && sudo systemctl restart nginx", shell=True, check=True)
 
-# Create systemd service
+# Create systemd service for Flask app
 systemd_service = '''[Unit]
 Description=Flask app with hCaptcha
 After=network.target
@@ -108,4 +112,42 @@ subprocess.run("sudo systemctl daemon-reload", shell=True, check=True)
 subprocess.run("sudo systemctl enable hcaptcha", shell=True, check=True)
 subprocess.run("sudo systemctl start hcaptcha", shell=True, check=True)
 
-print("Setup Complete! Visit http://{domain_name} to test your hCaptcha-protected URL.")
+# Obtain SSL certificates using Certbot
+subprocess.run(f"sudo certbot --nginx -d {domain_name} --non-interactive --agree-tos --email your-email@example.com", shell=True, check=True)
+
+# Update Nginx to listen on HTTPS and reload
+nginx_config_https = f'''server {{
+    listen 80;
+    server_name {domain_name};
+
+    location / {{
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }}
+}}
+
+server {{
+    listen 443 ssl;
+    server_name {domain_name};
+
+    ssl_certificate /etc/letsencrypt/live/{domain_name}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{domain_name}/privkey.pem;
+
+    location / {{
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }}
+}}'''
+
+# Write the updated Nginx configuration
+with open("/etc/nginx/sites-available/hcaptcha", "w") as f:
+    f.write(nginx_config_https)
+
+# Reload Nginx to apply HTTPS
+subprocess.run("sudo nginx -t && sudo systemctl reload nginx", shell=True, check=True)
+
+print("Setup Complete! Visit https://{domain_name} to test your hCaptcha-protected URL with HTTPS.")
