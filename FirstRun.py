@@ -65,7 +65,7 @@ with open("/var/www/hcaptcha/app.py", "w") as f:
     f.write(flask_code)
 
 # Install required packages
-subprocess.run("sudo apt update && sudo apt install -y nginx python3 python3-pip certbot python3-certbot-nginx", shell=True, check=True)
+subprocess.run("sudo apt update && sudo apt install -y nginx python3 python3-pip certbot python3-certbot-nginx ufw fail2ban", shell=True, check=True)
 subprocess.run("pip3 install flask requests gunicorn", shell=True, check=True)
 
 # Nginx configuration
@@ -113,7 +113,7 @@ subprocess.run("sudo systemctl enable hcaptcha", shell=True, check=True)
 subprocess.run("sudo systemctl start hcaptcha", shell=True, check=True)
 
 # Obtain SSL certificates using Certbot
-subprocess.run(f"sudo certbot --nginx -d {domain_name} --non-interactive --agree-tos --email cgmcfall@gmail.com", shell=True, check=True)
+subprocess.run(f"sudo certbot --nginx -d {domain_name} --non-interactive --agree-tos --email email@gmail.com", shell=True, check=True)
 
 # Update Nginx to listen on HTTPS and reload
 nginx_config_https = f'''server {{
@@ -150,4 +150,29 @@ with open("/etc/nginx/sites-available/hcaptcha", "w") as f:
 # Reload Nginx to apply HTTPS
 subprocess.run("sudo nginx -t && sudo systemctl reload nginx", shell=True, check=True)
 
-print("Setup Complete! Visit https://{domain_name} to test your hCaptcha-protected URL with HTTPS.")
+# Set up UFW to allow HTTP and HTTPS traffic
+subprocess.run("sudo ufw allow 'Nginx Full'", shell=True, check=True)
+subprocess.run("sudo ufw enable", shell=True, check=True)
+
+# Configure Fail2Ban
+fail2ban_jail_local = '''[DEFAULT]
+ignoreip = 127.0.0.1/8
+bantime  = 600
+findtime  = 600
+maxretry = 5
+
+[nginx-http-auth]
+enabled = true
+filter  = nginx-http-auth
+port    = http,https
+logpath = /var/log/nginx/error.log
+maxretry = 3
+'''
+
+with open("/etc/fail2ban/jail.local", "w") as f:
+    f.write(fail2ban_jail_local)
+
+# Restart Fail2Ban to apply the new configuration
+subprocess.run("sudo systemctl restart fail2ban", shell=True, check=True)
+
+print(f"Setup Complete! Visit https://{domain_name} to test your hCaptcha-protected URL with HTTPS.")
