@@ -113,7 +113,7 @@ subprocess.run("sudo systemctl enable hcaptcha", shell=True, check=True)
 subprocess.run("sudo systemctl start hcaptcha", shell=True, check=True)
 
 # Obtain SSL certificates using Certbot
-subprocess.run(f"sudo certbot --nginx -d {domain_name} --non-interactive --agree-tos --email your-email@example.com", shell=True, check=True)
+subprocess.run(f"sudo certbot --nginx -d {domain_name} --non-interactive --agree-tos --email cgmcfall@gmail.com", shell=True, check=True)
 
 # Update Nginx to listen on HTTPS and reload
 nginx_config_https = f'''server {{
