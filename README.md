@@ -22,14 +22,4 @@ This was built on the "Shared vCPU AMD CPX11" plan - $5.09/Month plan with no co
 
 A Basic (Free) account with https://www.hcaptcha.com/pricing - this is the service that makes the CAPTCHA challenge. 
 
-
-
-
-
-
-
-Any additional information goes here
-
-
-## 🚀 About Me
-I'm "Chris" -
+### WIP
