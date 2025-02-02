@@ -18,7 +18,7 @@ A server to host this on - Don't be scared and imagine an ugly old PC Tower, or 
 
 A https://www.hetzner.com/cloud/ "VPS" Machine in the cloud is all you need.
 
-This was built on the "Shared vCPU AMD CPX11" plan - $5.09/Month plan with no commitment. Here's a link that will give you €⁠20 or USD when you sign up. https://hetzner.cloud/?ref=3P9QrGZfl9sx - Full transparancey, this is not my referral code and I make no money from it - It's from Reddit. 
+This was built on the "Shared vCPU AMD CPX11" plan - $5.09/Month plan with no commitment. Here's a link that will give you €⁠20 or USD when you sign up. https://hetzner.cloud/?ref=3P9QrGZfl9sx - Full transparency, this is not my referral code and I gain nothing from it - It's from Reddit., and who doesn't like free stuff.  
 
 A Basic (Free) account with https://www.hcaptcha.com/pricing - this is the service that makes the CAPTCHA challenge. 
 
